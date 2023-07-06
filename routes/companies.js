@@ -16,11 +16,12 @@ router.get('/', async (req,res,next) => {
 router.get('/:code', async (req,res,next) => {
     try {
 	const {code} = req.params;
-	const results  = await db.query(`SELECT * FROM companies join invoices on companies.code=invoices.comp_code where code=$1`, [code]);
+	const results  = await db.query(`SELECT * FROM companies where code=$1`, [code]);
+	const inv = s  = await db.query(`SELECT * FROM invoices where comp_code=$1`, [code]);
 	if(results.rows.length === 0) {
 	    throw new ExpressError(`Can't find company with code of ${code}`,404)
 	}
-	return res.send({company: results.rows})
+	return res.send({company: results.rows[0]})
     } catch (err) {
 	return next(err);
     }
@@ -56,7 +57,7 @@ router.delete('/:code', async (req,res,next) => {
 	const {code} = req.params;
 	const check = await db.query('SELECT * FROM companies WHERE code =$1', [code])
 	if(check.rows.length === 0) {
-	    throw new ExpressError(`Can't update company with code of ${code}`,404)
+	    throw new ExpressError(`Can't delete company with code of ${code}`,404)
 	}
 	const results  = await db.query('DELETE from companies WHERE code=$1', [code])
 	return res.send({status: "DELETED"})
