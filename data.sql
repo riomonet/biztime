@@ -1,5 +1,8 @@
 \c biztime
 
+
+DROP TABLE IF EXISTS comp_industry;
+DROP TABLE IF EXISTS industries;
 DROP TABLE IF EXISTS invoices;
 DROP TABLE IF EXISTS companies;
 
@@ -8,6 +11,22 @@ CREATE TABLE companies (
     name text NOT NULL UNIQUE,
     description text
 );
+
+
+CREATE TABLE industries (
+   id serial PRIMARY KEY,
+   description text NOT NULL UNIQUE
+);
+
+
+CREATE TABLE comp_industry (
+
+    comp_code TEXT NOT NULL REFERENCES companies,
+    industry_id INTEGER NOT NULL REFERENCES industries,
+    PRIMARY KEY(industry_id, comp_code)
+);
+
+
 
 CREATE TABLE invoices (
     id serial PRIMARY KEY,
@@ -28,3 +47,17 @@ INSERT INTO invoices (comp_Code, amt, paid, paid_date)
          ('apple', 200, false, null),
          ('apple', 300, true, '2018-01-01'),
          ('ibm', 400, false, null);
+
+INSERT INTO industries (description)
+VALUES  ('marine'),
+	('computers'),
+	('art'),
+	('finance'),
+	('hospitality');
+
+
+INSERT INTO comp_industry (comp_code, industry_id)
+VALUES  ('apple', 1),
+	('apple', 2),
+	('ibm', 2),
+	('ibm', 3);

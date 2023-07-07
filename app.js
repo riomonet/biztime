@@ -9,7 +9,8 @@ const invoiceRoutes =require("./routes/invoices")
 app.use("/invoices", invoiceRoutes)
 const companyRoutes = require("./routes/companies");
 app.use("/companies", companyRoutes);
-
+const industryRoutes = require("./routes/industries")
+app.use("/industries", industryRoutes);
 
 /** 404 handler */
 

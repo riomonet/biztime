@@ -3,28 +3,38 @@ const request = require('supertest')
 const app = require('../app')
 const db = require('../db')
 
-let testCompany;
+let testCompany, testInvoice;
 
 beforeEach( async () => {
+
     const result = await db.query(`INSERT INTO companies (code,name,description) VALUES ('m59', 'boatyardt59','a really cool marina') RETURNING code, name, description `)
     testCompany = result.rows[0];
-})
 
+    const inv = await db.query(`INSERT INTO invoices (comp_code, amt) VALUES ('${testCompany.code}', '5290') RETURNING `)
+    testInvoice = inv.rows[0]
+    
+})
 
 describe("GET companies", ()=> {
     test("get a list with one company", async () =>{
 	const res = await request(app).get('/companies')
-	console.log(res.body)
-	console.log(testCompany)
 	expect(res.statusCode).toBe(200);
 	expect(res.body).toEqual({companies: [testCompany]})
+    })
+})
+
+describe("GET invoices", ()=> {
+    test("get a list with one invoice", async () =>{
+	const res = await request(app).get('/invoices')
+	expect(res.statusCode).toBe(200);
+	console.log("BODY", res.body, "TESTINVOICE",testInvoice)
+	expect(res.body).toEqual({invoices: [testInvoice]})
     })
 })
 
 describe("GET /companies/:code", ()=> {
     test("get a single company", async () =>{
 	const res = await request(app).get( `/companies/${testCompany.code}`)
-	console.log(testCompany)
 	expect(res.statusCode).toBe(200);
 	expect(res.body).toEqual({company: testCompany})
     })

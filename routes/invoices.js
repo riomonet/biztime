@@ -7,12 +7,11 @@ const { ExpressError } = require('../expressError')
 router.get('/', async (req,res,next) => {
     try {
 	const results  = await db.query(`select * from invoices`);
-	return res.send({invoices: results.rows})
+	return res.json({invoices: results.rows})
     } catch (err) {
 	return next(err);
     }
 })
-
 
 
 router.get('/:id', async (req,res,next) => {
@@ -40,18 +39,26 @@ router.post('/', async (req,res,next) => {
 
 router.put('/:id', async (req,res,next) => {
     try {
-	const {amt} = req.body;
+	let date = null;
 	const {id} = req.params;
-	const results  = await db.query('UPDATE invoices SET amt=$1 WHERE id=$2 RETURNING *', [amt, id])
+	const {amt, paid} = req.body;
+	if (paid === "true")
+	    date = new Date().toJSON();
+
+	const results  = await db.query('UPDATE invoices SET amt=$1, paid=$2, paid_date=$3 WHERE id=$4 RETURNING *', [amt, paid, date, id])
+	
 	if(results.rows.length === 0) {
 	    throw new ExpressError(`Can't update invoice with id of ${id}`,404)
 	}
+	
 	return res.status(200).json({invoice: results.rows[0]})
+
     }
 	catch (err) {
 	return next(err);
     }
 })
+
 
 router.delete('/:id', async (req,res,next) => {
     try {
